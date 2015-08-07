@@ -6,19 +6,20 @@
  */
 class virtualmin_remote_api {
 
-    private $username;
-    private $password;
-    private $host;
-    private $port;
-    private $protocol;
-    private $cache;
+    private $_username;
+    private $_password;
+    private $_host;
+    private $_port;
+    private $_protocol;
+    private $_cache;
 
     public function __construct($host, $username, $password, $port = "10000", $protocol = "https://") {
-        $this->host = $host;
-        $this->port = $port;
-        $this->protocol = $protocol;
-        $this->username = $username;
-        $this->password = $password;
+        $this->_host = $host;
+        $this->_port = $port;
+        $this->_protocol = $protocol;
+        $this->_username = $username;
+        $this->_password = $password;
+        $this->_cache = new stdClass();
     }
 
     public function get_domains($user = false) {
@@ -28,8 +29,8 @@ class virtualmin_remote_api {
                 'json' => 1,
                 'multiline',
             );
-            $response = $this->decodeResponse($this->callServer($params));
-            $this->cacheDomain($response->data);
+            $response = $this->_decodeResponse($this->_callServer($params));
+            $this->_cacheDomain($response->data);
             return $response->data;
         } else {
 
@@ -42,65 +43,65 @@ class virtualmin_remote_api {
             'domain',
             'pass',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-domain';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_domain(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-domain';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function suspend_domain(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'disable-domain';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function unsuspend_domain(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'enable-domain';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_domain(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-domain';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_database(array $params = array()) {
@@ -109,13 +110,13 @@ class virtualmin_remote_api {
             'name',
             'type' => 'mysql|postgres',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-database';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_database(array $params = array()) {
@@ -124,26 +125,26 @@ class virtualmin_remote_api {
             'name',
             'type' => 'mysql|postgres',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-database';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_databases(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-databases';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function disconnect_database(array $params = array()) {
@@ -152,13 +153,13 @@ class virtualmin_remote_api {
             'name',
             'type' => 'mysql|postgres',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'disconnect-database';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_database_hosts(array $params = array()) {
@@ -166,13 +167,13 @@ class virtualmin_remote_api {
             'domain|all-domain',
             'type' => 'mysql|postgres',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-database-hosts';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function import_database(array $params = array()) {
@@ -181,13 +182,13 @@ class virtualmin_remote_api {
             'name',
             'type' => 'mysql|postgres',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'import-database';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_reseller(array $params = array()) {
@@ -195,46 +196,46 @@ class virtualmin_remote_api {
             'name',
             'pass',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-reseller';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_reseller(array $params = array()) {
         $required = array(
             'name',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-reseller';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_resellers(array $params = array()) {
         $params['program'] = 'list-resellers';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_reseller(array $params = array()) {
         $required = array(
             'name',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-reseller';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_user(array $params = array()) {
@@ -243,13 +244,13 @@ class virtualmin_remote_api {
             'user',
             'pass',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-user';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_user(array $params = array()) {
@@ -257,13 +258,13 @@ class virtualmin_remote_api {
             'domain',
             'user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-user';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_user(array $params = array()) {
@@ -271,13 +272,13 @@ class virtualmin_remote_api {
             'domain',
             'user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-user';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_mailbox(array $params = array()) {
@@ -285,26 +286,26 @@ class virtualmin_remote_api {
             'domain',
             'user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-mailbox';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_users(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-users';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_database_user(array $params = array()) {
@@ -313,104 +314,104 @@ class virtualmin_remote_api {
             'type' => 'mysql|postgres',
             'user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-database-user';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_resources(array $params = array()) {
         $required = array(
             'domain|all-domains',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-resources';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_limits(array $params = array()) {
         $required = array(
             'domain|user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-limits';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function enable_limit(array $params = array()) {
         $required = array(
             'domain|all-domains',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'enable-limit';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function disable_limit(array $params = array()) {
         $required = array(
             'domain|all-domains',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'disable-limit';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function restore_domain(array $params = array()) {
         $required = array(
             'source',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'restore-domain';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_scheduled_backups(array $params = array()) {
         $required = array(
             'domain|user|reseller',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-scheduled-backups';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function backup_domain(array $params = array()) {
         $required = array(
             'dest',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'backup-domain';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_admin(array $params = array()) {
@@ -419,13 +420,13 @@ class virtualmin_remote_api {
             'name',
             'pass',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-admin';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_admin(array $params = array()) {
@@ -433,26 +434,26 @@ class virtualmin_remote_api {
             'domain',
             'name',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-admin';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_admins(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-admins';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_admin(array $params = array()) {
@@ -460,33 +461,33 @@ class virtualmin_remote_api {
             'domain',
             'name',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-admin';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_scripts(array $params = array()) {
         $required = array(
             'all-domains|domain|user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-scripts';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_available_scripts(array $params = array()) {
         $params['program'] = 'list-available-scripts';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function install_script(array $params = array()) {
@@ -495,26 +496,26 @@ class virtualmin_remote_api {
             'type',
             'version',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'install-script';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_script(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-script';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_svn_repository(array $params = array()) {
@@ -522,13 +523,13 @@ class virtualmin_remote_api {
             'domain',
             'name',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-svn-repository';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_svn_repository(array $params = array()) {
@@ -536,112 +537,112 @@ class virtualmin_remote_api {
             'domain',
             'name',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-svn-repository';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_svn_repositories(array $params = array()) {
         $params['program'] = 'list-svn-repositories';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_plan(array $params = array()) {
         $required = array(
             'name|id',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-svn-repository';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_plans(array $params = array()) {
         $params['program'] = 'list-plans';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_plan(array $params = array()) {
         $required = array(
             'name|id',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-plan';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_plan(array $params = array()) {
         $required = array(
             'name',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-plan';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_template(array $params = array()) {
         $required = array(
             'name|id',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-template';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_templates(array $params = array()) {
         $params['program'] = 'list-templates';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function get_template(array $params = array()) {
         $required = array(
             'name|id',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'get-template';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_template(array $params = array()) {
         $required = array(
             'name|id',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-template';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_template(array $params = array()) {
@@ -649,39 +650,39 @@ class virtualmin_remote_api {
             'name',
             'empty|clone'
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-template';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_certs(array $params = array()) {
         $required = array(
             'all-domains|domain|user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-certs';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function install_cert(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'install-cert';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function generate_cert(array $params = array()) {
@@ -689,26 +690,26 @@ class virtualmin_remote_api {
             'domain',
             'self|csr',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'generate-cert';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_proxies(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-proxies';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_proxy(array $params = array()) {
@@ -716,13 +717,13 @@ class virtualmin_remote_api {
             'domain',
             'path',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-proxy';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_proxy(array $params = array()) {
@@ -731,13 +732,13 @@ class virtualmin_remote_api {
             'path',
             'url|no-proxy',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'crate-proxy';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function change_license(array $params = array()) {
@@ -745,13 +746,13 @@ class virtualmin_remote_api {
             'serial',
             'key',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'change-license';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     /*
@@ -763,33 +764,33 @@ class virtualmin_remote_api {
         $required = array(
             'username',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'change-password';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function check_config(array $params = array()) {
         $params['program'] = 'check-config';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function check_connectivity(array $params = array()) {
         $required = array(
             'domain|user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'crate-proxy';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function copy_mailbox(array $params = array()) {
@@ -797,13 +798,13 @@ class virtualmin_remote_api {
             'source',
             'dest',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'copy-mailbox';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_redirect(array $params = array()) {
@@ -812,13 +813,13 @@ class virtualmin_remote_api {
             'path',
             'alias|redirect'
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-redirect';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_redirect(array $params = array()) {
@@ -826,178 +827,178 @@ class virtualmin_remote_api {
             'domain',
             'path',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-redirect';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function create_shared_address(array $params = array()) {
         $required = array(
             'ip|allocate-ip',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'create-shared-address';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function delete_shared_address(array $params = array()) {
         $required = array(
             'ip',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'delete-shared-address';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function disable_writelogs(array $params = array()) {
         $required = array(
             'domain|all-domains',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'disable-writelogs';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function enable_writelogs(array $params = array()) {
         $required = array(
             'domain|all-domains',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'enable-writelogs';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function get_command(array $params = array()) {
         $required = array(
             'command',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'get-command';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function get_dns(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'get-dns';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function get_ssl(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'get-ssl';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function info(array $params = array()) {
         $params['program'] = 'info';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_bandwidth(array $params = array()) {
         $required = array(
             'domain|all-domains',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-bandwidth';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function get_commands(array $params = array()) {
         $params['program'] = 'list-commands';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_features(array $params = array()) {
         $params['program'] = 'get-ssl';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_php_ini(array $params = array()) {
         $required = array(
             'domain|all-domains|user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-php-ini';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_redirects(array $params = array()) {
         $required = array(
             'domain',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'list-redirects';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_shared_addresses(array $params = array()) {
         $params['program'] = 'list-shared-addresses';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function list_styles(array $params = array()) {
         $params['program'] = 'list-styles';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_database_pass(array $params = array()) {
@@ -1006,40 +1007,40 @@ class virtualmin_remote_api {
             'type',
             'user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-database-pass';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function modify_php_ini(array $params = array()) {
         $required = array(
             'domain|all-domains|user',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'modify-php-ini';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function search_maillogs(array $params = array()) {
         $params['program'] = 'search-maillogs';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function set_spam(array $params = array()) {
         $params['program'] = 'set-spam';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function test_imap(array $params = array()) {
@@ -1049,13 +1050,13 @@ class virtualmin_remote_api {
             'server',
             'port',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'test-imap';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function test_pop3(array $params = array()) {
@@ -1065,29 +1066,29 @@ class virtualmin_remote_api {
             'server',
             'port',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'test-pop3F';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
     public function test_smtp(array $params = array()) {
         $required = array(
             'to',
         );
-        if (!$this->checkIfAllParamsGood($params, $required)) {
+        if (!$this->_checkIfAllParamsGood($params, $required)) {
             return false;
         }
         $params['program'] = 'test-smtp';
         $params['json'] = 1;
         $params[] = 'multiline';
-        return $this->decodeResponse($this->callServer($params));
+        return $this->_decodeResponse($this->_callServer($params));
     }
 
-    private function buildQueryString(array $query = array(), $questionMark = false) {
+    private function _buildQueryString(array $query = array(), $questionMark = false) {
         if (empty($query)) {
             return "";
         }
@@ -1095,35 +1096,35 @@ class virtualmin_remote_api {
             return "";
         }
         if ($questionMark) {
-            $querySring = "?";
+            $queryString = "?";
         } else {
-            $querySring = "";
+            $queryString = "";
         }
         foreach ($query as $key => $value) {
-            if ($querySring !== "?" && $querySring !== "") {
-                $querySring .= "&";
+            if ($queryString !== "?" && $queryString !== "") {
+                $queryString .= "&";
             }
             if (is_numeric($key)) {
-                $querySring .= $value . "=";
+                $queryString .= $value . "=";
             } else {
-                $querySring .= $key . "=" . $value;
+                $queryString .= $key . "=" . $value;
             }
         }
-        return $querySring;
+        return $queryString;
     }
 
-    private function callServer(array $params = array()) {
-        $querySring = $this->buildQueryString($params);
+    private function _callServer(array $params = array()) {
+        $queryString = $this->_buildQueryString($params);
         unset($params);
         $params = array(
-            'user' => $this->username,
-            'password' => $this->password,
+            'user' => $this->_username,
+            'password' => $this->_password,
         );
-        $url = $this->protocol . $this->host . ":" . $this->port . "/virtual-server/remote.cgi?" . $querySring;
-        return $this->get($url, true, $params);
+        $url = $this->_protocol . $this->_host . ":" . $this->_port . "/virtual-server/remote.cgi?" . $queryString;
+        return $this->_get($url, true, $params);
     }
 
-    private function get($url = false, $return = true, array $params = array()) {
+    private function _get($url = false, $return = true, array $params = array()) {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -1140,7 +1141,7 @@ class virtualmin_remote_api {
         return true;
     }
 
-    private function decodeResponse($response = false, $format = "json") {
+    private function _decodeResponse($response = false, $format = "json") {
         if ($format == "json") {
             return json_decode($response);
         } elseif ($format == "xml") {
@@ -1149,44 +1150,44 @@ class virtualmin_remote_api {
         return false;
     }
 
-    private function cacheDomain($domains = false) {
+    private function _cacheDomain($domains = false) {
         foreach ($domains as $domain) {
             $domainName = $domain->name;
-            $this->cache->$domainName = $domain->values;
+            $this->_cache->$domainName = $domain->values;
         }
         return true;
     }
 
-    private function getCached($domains = false) {
+    private function _getCached($domains = false) {
         if (is_array($domains)) {
             foreach ($domains as $key => $val) {
-                if ($this->isCached($val)) {
-                    $toReturn[$val] = $this->cache->$val;
+                if ($this->_isCached($val)) {
+                    $toReturn[$val] = $this->_cache->$val;
                 }
             }
             return $toReturn;
         } elseif ($domains == "all") {
-            return $this->cache;
+            return $this->_cache;
         } elseif (is_string($domains)) {
-            if ($this->isCached($domains)) {
-                return $this->cache->$domains;
+            if ($this->_isCached($domains)) {
+                return $this->_cache->$domains;
             }
         }
         return false;
     }
 
-    private function isCached($domain = false) {
-        if (property_exists($this->cache, $domain)) {
+    private function _isCached($domain = false) {
+        if (property_exists($this->_cache, $domain)) {
             return true;
         }
         return false;
     }
 
-    private function generatePassword() {
+    private function _generatePassword() {
         return substr(md5(time() . microtime(true) . mt_rand()), -8);
     }
 
-    public function checkIfAllParamsGood($params, $required) {
+    private function _checkIfAllParamsGood($params, $required) {
         $i = 0;
         foreach ($required as $key => $val) {
             if (is_numeric($key) && !is_string($key) && !is_array(explode("|", $key))) {
@@ -1234,7 +1235,7 @@ class virtualmin_remote_api {
         if (count($required) == $i) {
             return true;
         }
-        return true;
+        return false;
     }
 
 }
