@@ -1234,7 +1234,7 @@ class virtualmin_remote_api {
         if (count($required) == $i) {
             return true;
         }
-        return true;
+        return false;
     }
 
 }
