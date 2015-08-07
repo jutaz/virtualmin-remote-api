@@ -1187,7 +1187,7 @@ class virtualmin_remote_api {
         return substr(md5(time() . microtime(true) . mt_rand()), -8);
     }
 
-    private function checkIfAllParamsGood($params, $required) {
+    private function _checkIfAllParamsGood($params, $required) {
         $i = 0;
         foreach ($required as $key => $val) {
             if (is_numeric($key) && !is_string($key) && !is_array(explode("|", $key))) {
