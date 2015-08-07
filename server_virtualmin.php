@@ -19,6 +19,7 @@ class virtualmin_remote_api {
         $this->_protocol = $protocol;
         $this->_username = $username;
         $this->_password = $password;
+        $this->_cache = new stdClass();
     }
 
     public function get_domains($user = false) {
