@@ -104,6 +104,20 @@ class virtualmin_remote_api {
         return $this->_decodeResponse($this->_callServer($params));
     }
 
+    public function clone_domain(array $params = array()) {
+    	$required = array(
+    			'domain',
+    			'newdomain',
+    	);
+    	if (!$this->_checkIfAllParamsGood($params, $required)) {
+    		return false;
+    	}
+    	$params['program'] = 'clone-domain';
+    	$params['json'] = 1;
+    	$params[] = 'multiline';
+    	return $this->_decodeResponse($this->_callServer($params));
+    }
+
     public function create_database(array $params = array()) {
         $required = array(
             'domain',
